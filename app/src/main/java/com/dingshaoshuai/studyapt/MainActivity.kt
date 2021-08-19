@@ -31,5 +31,6 @@ class MainActivity : AppCompatActivity() {
         teacher.lecture("思想政治")
         val student = Student()
         println("100 + 200 = ${student.add(100, 200)}")
+        Schoolmaster().meeting()
     }
 }

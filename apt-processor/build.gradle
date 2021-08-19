@@ -16,5 +16,7 @@ dependencies {
 
     // 生成 java 源文件的框架
     implementation 'com.squareup:javapoet:1.13.0'
+    // 生成 kotlin 源文件的框架
+    implementation 'com.squareup:kotlinpoet:1.9.0'
 }
 

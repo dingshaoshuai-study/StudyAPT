@@ -3,12 +3,16 @@ package com.dingshaoshuai.apt_processor
 import com.dingshaoshuai.lib_annotation.TestAnnotation
 import com.google.auto.service.AutoService
 import com.squareup.javapoet.*
+import com.squareup.kotlinpoet.FileSpec
+import com.squareup.kotlinpoet.FunSpec
+import com.squareup.kotlinpoet.KModifier
 import java.io.Writer
 import javax.annotation.processing.*
 import javax.lang.model.SourceVersion
 import javax.lang.model.element.Modifier
 import javax.lang.model.element.TypeElement
 import javax.tools.Diagnostic
+import com.squareup.kotlinpoet.TypeSpec as KTypeSpec
 
 @AutoService(Processor::class)
 class TestProcessor : AbstractProcessor() {
@@ -35,6 +39,7 @@ class TestProcessor : AbstractProcessor() {
 
         generateTeacherFile()
         javapoetGenerateStudentFile()
+        kotlinpoetGenerateStudentFile()
 
         messager.printMessage(Diagnostic.Kind.NOTE, "TestProcessor#process ------------ end")
         // 这个返回值我不知道啥意思
@@ -102,13 +107,15 @@ public class Teacher {
 
         // 创建方法
         val addMethod = MethodSpec.methodBuilder("add")
-            .addModifiers(Modifier.PUBLIC,Modifier.FINAL)
-            .addParameter(TypeName.INT,"i")
-            .addParameter(TypeName.INT,"j")
+            .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
+            .addParameter(TypeName.INT, "i")
+            .addParameter(TypeName.INT, "j")
             .returns(Int::class.java)
-            .addCode("""
+            .addCode(
+                """
             return i + j;
-            """.trimIndent())
+            """.trimIndent()
+            )
             .build()
 
         // 类名称
@@ -127,5 +134,31 @@ public class Teacher {
             .build()
         // 写入
         javaFile.writeTo(filer)
+    }
+
+    private fun kotlinpoetGenerateStudentFile() {
+        // 创建一个方法
+        val function = FunSpec.builder("meeting")
+            // 方法修饰符
+            .addModifiers(KModifier.OPEN)
+            // 方法体
+            .addCode(
+                """
+                println("所有老师跟我去开会")
+            """.trimIndent()
+            )
+            .build()
+
+        // 创建一个类，kotlin 与 java 的同名了，这里起了别名：KTypeSpec
+        val schoolmasterClass = KTypeSpec.classBuilder("Schoolmaster")
+            .addModifiers(KModifier.OPEN)
+            // 添加初始代码块
+//            .addInitializerBlock()
+            .addFunction(function)
+            .build()
+        val kotlinFile = FileSpec.builder("com.dingshaoshuai.studyapt", "Schoolmaster")
+            .addType(schoolmasterClass)
+            .build()
+        kotlinFile.writeTo(filer)
     }
 }
